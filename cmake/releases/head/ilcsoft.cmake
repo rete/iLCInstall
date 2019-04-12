@@ -25,4 +25,5 @@ ilcsoft_install_package( PACKAGE Marlin )
 ilcsoft_install_package( PACKAGE DD4hep )
 ilcsoft_install_package( PACKAGE MarlinUtil )
 ilcsoft_install_package( PACKAGE PandoraAnalysis )
+ilcsoft_install_package( PACKAGE MarlinReco )
 
