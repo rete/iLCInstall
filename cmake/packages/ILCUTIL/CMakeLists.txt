@@ -9,7 +9,6 @@ ilcsoft_package(
 ilcsoft_package_install_target(
   MODE GIT_REPO 
   URL "https://github.com/iLCSoft/iLCUtil.git"
-  NO_INSTALL
 )
 
 # export variables to init_ilcsoft.sh
