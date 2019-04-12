@@ -16,6 +16,7 @@ ilcsoft_link_package( PACKAGE ROOT )
 ilcsoft_link_package( PACKAGE Geant4 )
 
 # ILCSoft packages
+ilcsoft_install_package( PACKAGE PandoraPFANew )
 ilcsoft_install_package( PACKAGE GEAR )
 ilcsoft_install_package( PACKAGE LCIO )
 ilcsoft_install_package( PACKAGE LCCD )
@@ -23,3 +24,5 @@ ilcsoft_install_package( PACKAGE RAIDA )
 ilcsoft_install_package( PACKAGE Marlin )
 ilcsoft_install_package( PACKAGE DD4hep )
 ilcsoft_install_package( PACKAGE MarlinUtil )
+ilcsoft_install_package( PACKAGE PandoraAnalysis )
+
