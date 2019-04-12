@@ -575,7 +575,6 @@ function( ilcsoft_package_install_target )
       INSTALL_DIR ${PKG_INSTALL_DIR}
       LIST_SEPARATOR %
       ${FULL_INSTALL_COMMAND}
-      LOG_INSTALL 1
     )
   else()
     # create a target to install the package
@@ -592,7 +591,6 @@ function( ilcsoft_package_install_target )
       INSTALL_DIR ${PKG_INSTALL_DIR}
       LIST_SEPARATOR %
       INSTALL_COMMAND ""
-      LOG_INSTALL 1
     )
   endif()
 endfunction()
