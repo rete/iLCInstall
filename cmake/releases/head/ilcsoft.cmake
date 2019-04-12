@@ -1,6 +1,8 @@
 
 # base packages: create links
 ilcsoft_link_package( PACKAGE MySQL )
+ilcsoft_link_package( PACKAGE Boost )
+ilcsoft_link_package( PACKAGE Eigen )
 ilcsoft_link_package( PACKAGE ILCUTIL )
 ilcsoft_link_package( PACKAGE CondDBMySQL )
 ilcsoft_link_package( PACKAGE CED )
@@ -19,3 +21,4 @@ ilcsoft_install_package( PACKAGE LCIO )
 ilcsoft_install_package( PACKAGE LCCD )
 ilcsoft_install_package( PACKAGE RAIDA )
 ilcsoft_install_package( PACKAGE Marlin )
+ilcsoft_install_package( PACKAGE MarlinUtil )
