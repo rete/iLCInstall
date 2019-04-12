@@ -138,7 +138,7 @@ function( ilcsoft_add_cmake_env )
     # global cmake env case
     # check if the variable is not yet in the registry
     get_property( cmake_envs GLOBAL PROPERTY ILCSOFT_CMAKE_ENV )
-    if( NOT ${CMAKE_ENV_NAME} IN_LIST cmake_envs )
+    if( NOT "${CMAKE_ENV_NAME}" IN_LIST cmake_envs )
       set_property( GLOBAL APPEND PROPERTY ILCSOFT_CMAKE_ENV ${CMAKE_ENV_NAME} )
     endif()
     # set global cmake variable
@@ -147,7 +147,7 @@ function( ilcsoft_add_cmake_env )
     # package environment case
     # check if the variable is not yet in the registry
     ilcsoft_get_package_property( VAR cmake_envs PROPERTY CMAKE_ENV )
-    if( NOT ${CMAKE_ENV_NAME} IN_LIST cmake_envs )
+    if( NOT "${CMAKE_ENV_NAME}" IN_LIST cmake_envs )
       ilcsoft_set_package_property( APPEND PROPERTY CMAKE_ENV VALUE ${CMAKE_ENV_NAME} )
     endif()
     # set package cmake variable
@@ -176,7 +176,7 @@ function( ilcsoft_add_export_variable )
     # global export variable case
     # check if the variable is not yet in the registry
     get_property( export_vars GLOBAL PROPERTY ILCSOFT_EXPORT_VARS )
-    if( NOT ${ARG_NAME} IN_LIST export_vars )
+    if( NOT "${ARG_NAME}" IN_LIST export_vars )
       set_property( GLOBAL APPEND PROPERTY ILCSOFT_EXPORT_VARS ${ARG_NAME} )
     endif()
     # set global export variable
@@ -185,7 +185,7 @@ function( ilcsoft_add_export_variable )
     # package environment case
     # check if the variable is not yet in the registry
     ilcsoft_get_package_property( VAR export_vars PROPERTY EXPORT_VARS )
-    if( NOT ${ARG_NAME} IN_LIST export_vars )
+    if( NOT "${ARG_NAME}" IN_LIST export_vars )
       ilcsoft_set_package_property( APPEND PROPERTY EXPORT_VARS VALUE ${ARG_NAME} )
     endif()
     # set package cmake variable
@@ -285,6 +285,46 @@ endfunction()
 
 
 #---------------------------------------------------------------------------------------------------
+#  ilcsoft_install_marlinpkg
+#
+#  Arguments
+#  ---------
+#  PACKAGE          -> The package to link
+#  PATH             -> The path to where the package should be linked (optional)
+#
+#  \author  R.Ete
+#  \version 1.0
+#
+#---------------------------------------------------------------------------------------------------
+function( ilcsoft_install_marlinpkg )
+  cmake_parse_arguments(ARG "" "PACKAGE;GIT_USER;GIT_REPO" "DEPENDS" ${ARGN} )
+  set( GIT_USER "iLCSoft" )
+  set( GIT_REPO ${ARG_PACKAGE} )
+  if( ARG_GIT_USER )
+    set( GIT_USER ${ARG_GIT_USER} )
+  endif()
+  if( ARG_GIT_REPO )
+    set( GIT_REPO ${ARG_GIT_REPO} )
+  endif()
+  set( MarlinPkg_NAME ${ARG_PACKAGE} )
+  set( MarlinPkg_GITURL "https://github.com/${GIT_USER}/${GIT_REPO}.git" )
+  set( MarlinPkg_DEPENDS Marlin LCIO ${ARG_DEPENDS} )
+  get_property( binary_dir GLOBAL PROPERTY ILCSOFT_BINARY_DIR )
+  set( pkg_cmake_dir ${binary_dir}/${MarlinPkg_NAME} )
+  configure_file( 
+    ${PROJECT_SOURCE_DIR}/cmake/packages/MarlinPkg.cmake.in
+    ${pkg_cmake_dir}/CMakeLists.txt
+    @ONLY
+  )
+  set( ILCSOFT_PACKAGE_${MarlinPkg_NAME}_INSTALL_MODE "install" )
+  message( STATUS "Loading package ${MarlinPkg_NAME} (mode: ${ILCSOFT_PACKAGE_${MarlinPkg_NAME}_INSTALL_MODE})" )
+  add_subdirectory( ${pkg_cmake_dir} )
+endfunction()
+
+
+
+
+#---------------------------------------------------------------------------------------------------
 #  ilcsoft_package
 #
 #  Arguments
@@ -328,10 +368,15 @@ function( ilcsoft_package )
   # build the full list of package dependencies
   if( pkg_depends )
     foreach( pkg ${pkg_depends} )
+      ilcsoft_get_export_package_property( VAR pkg_exported PACKAGE ${pkg} PROPERTY EXPORTED )
+      if( NOT pkg_exported )
+        message( FATAL_ERROR "Missing package dependency: ${pkg}" )
+      endif()
       ilcsoft_get_export_package_property( VAR pkg_deps PACKAGE ${pkg} PROPERTY DEPENDS )
       if( pkg_deps )
         list( APPEND pkg_full_depends ${pkg_deps} )
       endif()
+
     endforeach()
     list( APPEND pkg_full_depends ${pkg_depends} )
     list( REMOVE_DUPLICATES pkg_full_depends )
@@ -409,9 +454,9 @@ endfunction()
 #  Arguments
 #  ---------
 #  NO_INSTALL         -> Whether to suppress the install command
-#  MODE               -> The installation mode of package (GIT_REPO or WGET)
+#  MODE               -> The installation mode of package (GIT_REPO, SVN_REPO or WGET)
 #  TARGET             -> The target name (optional). Default is package name
-#  URL                -> The http url (for WGET) or the git url (for GIT_REPO)
+#  URL                -> The http url (for WGET) or the git url (for GIT_REPO) or svn repo (for SVN_REPO) 
 #  BUILD_COMMAND      -> The build command (overwrite the default 'make -jN')
 #  CONFIGURE_COMMAND  -> The configure command (overwrite 'cmake')
 #  BUILD_IN_SOURCE    -> Whether to build the package in the source directory
@@ -439,8 +484,10 @@ function( ilcsoft_package_install_target )
   if( NOT pkg_name )
     message( FATAL_ERROR "ilcsoft_package_install_target must be called from within a package macro !" )
   endif()
-  set( available_modes GIT_REPO WGET )
-  if( NOT DEFINED ARG_MODE OR NOT ${ARG_MODE} IN_LIST available_modes )
+  set( available_modes GIT_REPO WGET SVN_REPO )
+  message( STATUS "[DEBUG] available_modes: ${available_modes}" )
+  message( STATUS "[DEBUG] ARG_MODE: ${ARG_MODE}" )
+  if( NOT "${ARG_MODE}" IN_LIST available_modes )
     message( FATAL_ERROR "Package ${pkg_name} unknown install mode (${ARG_MODE} ?)" )
   endif()
   # set the target name, either the one specified by the user or the package name 
@@ -511,7 +558,7 @@ function( ilcsoft_package_install_target )
     get_property( cmake_var_value GLOBAL PROPERTY ILCSOFT_CMAKE_ENV_${cmake_var} )
     # don't override cmake var if the package has re-defined it
     # priority to package variables !
-    if( NOT ${cmake_var} IN_LIST cmake_envs )
+    if( NOT "${cmake_var}" IN_LIST cmake_envs )
       if( cmake_var_value )
         list( APPEND CMAKE_ARGS "-D${cmake_var}=${cmake_var_value} " )
       endif()      
@@ -526,12 +573,18 @@ function( ilcsoft_package_install_target )
   if( pkg_url )
     set( ARG_URL ${pkg_url} )
   endif()
-  # here we treat the install mode: GIT_REPO or WGET
+  # here we treat the install mode: GIT_REPO, SVN_REPO or WGET
   set( FULL_MODE_COMMAND )
   if( "${ARG_MODE}" STREQUAL "GIT_REPO" )
     set( FULL_MODE_COMMAND GIT_REPOSITORY ${ARG_URL} GIT_TAG ${pkg_version} )
   elseif( "${ARG_MODE}" STREQUAL "WGET" )
     set( FULL_MODE_COMMAND URL ${ARG_URL} )
+  elseif( "${ARG_MODE}" STREQUAL "SVN_REPO" )
+    if( ${pkg_version} STREQUAL "trunk" )
+      set( FULL_MODE_COMMAND SVN_REPOSITORY ${ARG_URL}/trunk )
+    else()
+      set( FULL_MODE_COMMAND SVN_REPOSITORY ${ARG_URL}/tags/${pkg_version} )
+    endif()
   endif()
   # print summary
   message( STATUS "++ Package ${pkg_name} install summary" )
@@ -627,7 +680,7 @@ function( ilcsoft_export_package )
     message( FATAL_ERROR "ilcsoft_export_package must be called from a package macro !" )
   endif()
   get_property( pkg_list GLOBAL PROPERTY ILCSOFT_PACKAGE_LIST )
-  if( ${pkg_name} IN_LIST pkg_list )
+  if( "${pkg_name}" IN_LIST pkg_list )
     message( FATAL_ERROR "Package ${pkg_name} already exported" )
   endif()
   set_property( GLOBAL APPEND PROPERTY ILCSOFT_PACKAGE_LIST ${pkg_name} )
@@ -647,6 +700,7 @@ function( ilcsoft_export_package )
   # append MARLIN_DLL 
   ilcsoft_get_package_property( VAR pkg_marlin_dll PROPERTY MARLIN_DLL )
   set_property( GLOBAL APPEND PROPERTY ILCSOFT_PKG_EXPORT_MARLIN_DLL ${pkg_marlin_dll} )
+  set_property( GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_${pkg_name}_EXPORTED ON )
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
