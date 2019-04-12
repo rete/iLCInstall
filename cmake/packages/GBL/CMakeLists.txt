@@ -2,7 +2,7 @@
 # declare package
 ilcsoft_package( 
   NAME GBL
-  DEPENDS ROOT
+  DEPENDS ROOT Eigen
 )
 
 # install the git repo
