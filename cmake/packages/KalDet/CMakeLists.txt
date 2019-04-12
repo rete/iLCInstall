@@ -8,7 +8,7 @@ ilcsoft_package(
 # install the git repo
 ilcsoft_package_install_target(
   MODE GIT_REPO 
-  URL "https://github.com/iLCSoft/MarlinReco.git"
+  URL "https://github.com/iLCSoft/KalDet.git"
 )
 
 # populate MARLIN_DLL property
