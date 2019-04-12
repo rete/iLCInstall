@@ -1,0 +1,18 @@
+
+# declare package
+ilcsoft_package( 
+  NAME @MarlinPkg_NAME@
+  DEPENDS @MarlinPkg_DEPENDS@
+)
+
+# install the git repo
+ilcsoft_package_install_target(
+  MODE GIT_REPO 
+  URL @MarlinPkg_GITURL@
+)
+
+# populate MARLIN_DLL property
+ilcsoft_package_add_marlindll()
+
+# export the package
+ilcsoft_export_package()
