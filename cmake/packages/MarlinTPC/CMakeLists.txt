@@ -16,5 +16,8 @@ ilcsoft_get_package_property( VAR install_dir PROPERTY INSTALL_DIR )
 ilcsoft_add_export_variable( NAME MARLINTPC VALUE ${install_dir} )
 ilcsoft_add_export_variable( NAME PATH VALUE "$MARLINTPC/bin" )
 
+# populate MARLIN_DLL property
+ilcsoft_package_add_marlindll()
+
 # export the package
 ilcsoft_export_package()
