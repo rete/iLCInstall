@@ -422,7 +422,7 @@ endfunction()
 #---------------------------------------------------------------------------------------------------
 function( ilcsoft_package_install_target )
   include( ExternalProject )
-  cmake_parse_arguments( ARG "NO_INSTALL;BUILD_IN_SOURCE" "MODE;TARGET;URL" "BUILD_COMMAND;CONFIGURE_COMMAND" ${ARGN} )
+  cmake_parse_arguments( ARG "NO_INSTALL;BUILD_IN_SOURCE" "MODE;TARGET;URL" "BUILD_COMMAND;CONFIGURE_COMMAND;INSTALL_COMMAND" ${ARGN} )
   # get needed properties  
   ilcsoft_get_package_property( VAR pkg_name PROPERTY NAME )
   ilcsoft_get_package_property( VAR pkg_version PROPERTY VERSION )
@@ -459,7 +459,11 @@ function( ilcsoft_package_install_target )
   endif()
   # install command
   set( INSTALL_COMMAND make install )
-  if( DEFINED ARG_NO_INSTALL )
+  if( ARG_INSTALL_COMMAND )
+    message( STATUS "[DEBUG] providing install command : ${ARG_INSTALL_COMMAND}" )
+    set( INSTALL_COMMAND ${ARG_INSTALL_COMMAND} )
+  elseif( ARG_NO_INSTALL )
+    message( STATUS "[DEBUG] switching OFF install command" )
     set( INSTALL_COMMAND "" )
   endif()
   set( BUILD_IN_SOURCE False )
@@ -556,21 +560,41 @@ function( ilcsoft_package_install_target )
   if( pkg_target_depends )
     set( DEPENDS_FULL DEPENDS ${pkg_target_depends} )
   endif()
-  # create a target to install the package
-  ExternalProject_Add(
-    ${ARG_TARGET}
-    ${DEPENDS_FULL}
-    ${FULL_MODE_COMMAND}
-    BUILD_IN_SOURCE ${BUILD_IN_SOURCE}
-    SOURCE_DIR ${SOURCE_DIR}
-    ${FULL_BINARY_DIR}
-    ${FULL_CMAKE_ARGS}
-    BUILD_COMMAND ${BUILD_COMMAND}
-    ${FULL_CONFIGURE_COMMAND}
-    INSTALL_COMMAND ${INSTALL_COMMAND}
-    INSTALL_DIR ${PKG_INSTALL_DIR}
-    LIST_SEPARATOR %
-  )
+  if( INSTALL_COMMAND )
+    # create a target to install the package
+    ExternalProject_Add(
+      ${ARG_TARGET}
+      ${DEPENDS_FULL}
+      ${FULL_MODE_COMMAND}
+      BUILD_IN_SOURCE ${BUILD_IN_SOURCE}
+      SOURCE_DIR ${SOURCE_DIR}
+      ${FULL_BINARY_DIR}
+      ${FULL_CMAKE_ARGS}
+      BUILD_COMMAND ${BUILD_COMMAND}
+      ${FULL_CONFIGURE_COMMAND}
+      INSTALL_DIR ${PKG_INSTALL_DIR}
+      LIST_SEPARATOR %
+      ${FULL_INSTALL_COMMAND}
+      LOG_INSTALL 1
+    )
+  else()
+    # create a target to install the package
+    ExternalProject_Add(
+      ${ARG_TARGET}
+      ${DEPENDS_FULL}
+      ${FULL_MODE_COMMAND}
+      BUILD_IN_SOURCE ${BUILD_IN_SOURCE}
+      SOURCE_DIR ${SOURCE_DIR}
+      ${FULL_BINARY_DIR}
+      ${FULL_CMAKE_ARGS}
+      BUILD_COMMAND ${BUILD_COMMAND}
+      ${FULL_CONFIGURE_COMMAND}
+      INSTALL_DIR ${PKG_INSTALL_DIR}
+      LIST_SEPARATOR %
+      INSTALL_COMMAND ""
+      LOG_INSTALL 1
+    )
+  endif()
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
