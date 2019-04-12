@@ -595,6 +595,24 @@ function( ilcsoft_package_install_target )
   endif()
 endfunction()
 
+
+function( ilcsoft_package_add_marlindll )
+  cmake_parse_arguments( ARG "" "" "LIBRARIES" ${ARGN} )
+  # get the package name
+  ilcsoft_get_package_property( VAR pkg_name PROPERTY NAME )
+  if( NOT pkg_name )
+    message( FATAL_ERROR "ilcsoft_package_add_marlindll must be called from within a package macro !" )
+  endif()
+  # if no library provided, build the name from the 
+  # package name as {installdir}/lib/lib{Pkg}.{ext}
+  if( NOT ARG_LIBRARIES )
+    ilcsoft_get_package_property( VAR pkg_install_dir PROPERTY INSTALL_DIR )
+    set( ARG_LIBRARIES "${pkg_install_dir}/lib/lib${pkg_name}${CMAKE_SHARED_LIBRARY_SUFFIX}" )
+  endif()
+  message( STATUS "++=> Package ${pkg_name}, adding MARLIN_DLL library ${ARG_LIBRARIES}" )
+  ilcsoft_set_package_property( APPEND PROPERTY MARLIN_DLL VALUE ${ARG_LIBRARIES} )
+endfunction()
+
 #---------------------------------------------------------------------------------------------------
 #  ilcsoft_export_package
 #  
@@ -626,6 +644,9 @@ function( ilcsoft_export_package )
     ilcsoft_get_package_property( VAR pkg_export_val PROPERTY EXPORT_VARS_${pkg_export_var} )
     set_property( GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_${pkg_name}_EXPORT_VARS_${pkg_export_var} ${pkg_export_val} )
   endforeach()
+  # append MARLIN_DLL 
+  ilcsoft_get_package_property( VAR pkg_marlin_dll PROPERTY MARLIN_DLL )
+  set_property( GLOBAL APPEND PROPERTY ILCSOFT_PKG_EXPORT_MARLIN_DLL ${pkg_marlin_dll} )
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
@@ -763,7 +784,22 @@ function( ilcsoft_write_init_file )
       endif()
     endforeach()
   endforeach()
-  
+  # export the MARLIN_DLL from all packages 
+  get_property( all_marlin_dll GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_MARLIN_DLL )
+  if( all_marlin_dll )
+    set( MARLIN_DLL_STR "export MARLIN_DLL=" )
+    foreach( marlin_dll ${all_marlin_dll} )
+      set( MARLIN_DLL_STR "${MARLIN_DLL_STR}${marlin_dll}:" )
+    endforeach()
+    set( MARLIN_DLL_STR "${MARLIN_DLL_STR}$MARLIN_DLL" )
+  endif()
+  file( APPEND ${ILCSOFT_INIT_FILE}
+    "\n"
+    "#--------------------------------------------------------------------------------\n"
+    "#    export MARLIN_DLL from all installed packages\n"
+    "#--------------------------------------------------------------------------------\n"
+    "\n${MARLIN_DLL_STR}\n"
+  )
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
