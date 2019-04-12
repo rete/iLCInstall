@@ -7,6 +7,7 @@ ilcsoft_package(
 )
 
 # ROOT package options
+ilcsoft_add_cmake_env( VAR rpath VALUE ON )
 ilcsoft_add_cmake_env( VAR gsl_shared VALUE ON )
 ilcsoft_add_cmake_env( VAR gdml VALUE ON )
 ilcsoft_add_cmake_env( VAR minuit2 VALUE ON )
