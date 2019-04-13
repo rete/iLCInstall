@@ -1,17 +1,14 @@
 
 # declare package
-ilcsoft_package( 
-  NAME CondDBMySQL 
+ilcsoft_package(
+  NAME CondDBMySQL
   DEPENDS ILCUTIL MySQL
-  BASE 
+  BASE
 )
-
-ilcsoft_get_export_package_property( PACKAGE MySQL VAR mysql_path PROPERTY INSTALL_DIR )
-ilcsoft_add_cmake_env( VAR MySQL_DIR VALUE ${mysql_path} )
 
 # install the git repo
 ilcsoft_package_install_target(
-  MODE GIT_REPO 
+  MODE GIT_REPO
   URL "https://github.com/iLCSoft/CondDBMySQL.git"
 )
 
