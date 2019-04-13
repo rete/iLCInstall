@@ -1,4 +1,6 @@
 
+option( DD4hep_RPATH_INSTALL "Build DD4hep with rpath install" ON )
+
 # declare package
 ilcsoft_package( 
   NAME DD4hep
@@ -13,6 +15,7 @@ ilcsoft_add_cmake_env( VAR DD4HEP_USE_XERCESC VALUE OFF )
 ilcsoft_add_cmake_env( VAR DD4HEP_USE_PYROOT VALUE OFF )
 ilcsoft_add_cmake_env( VAR DD4HEP_USE_GEAR VALUE ON )
 ilcsoft_add_cmake_env( VAR DD4HEP_USE_BOOST VALUE ON )
+ilcsoft_add_cmake_env( VAR CMAKE_INSTALL_RPATH_USE_LINK_PATH VALUE ${DD4hep_RPATH_INSTALL} )
 if( ILCSOFT_USE_CXX11 )
   ilcsoft_add_cmake_env( VAR DD4HEP_USE_CXX11 VALUE ON )
 endif()
