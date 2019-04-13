@@ -5,17 +5,17 @@ include(CMakeParseArguments)
 
 #---------------------------------------------------------------------------------------------------
 #  ilcsoft_detect_configuration
-#  
+#
 #  \author  R.Ete
 #  \version 1.0
-#  
+#
 #---------------------------------------------------------------------------------------------------
-function( ilcsoft_detect_configuration )  
+function( ilcsoft_detect_configuration )
   # package versions can be set by command line
   if( ILCSOFT_USE_HEAD )
     set( versions_file ${PROJECT_SOURCE_DIR}/cmake/releases/head/versions.cmake )
   else()
-    set( versions_file ${PROJECT_SOURCE_DIR}/cmake/releases/latest/versions.cmake )    
+    set( versions_file ${PROJECT_SOURCE_DIR}/cmake/releases/latest/versions.cmake )
   endif()
   # default path for installation
   set( ILCSOFT_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/install" CACHE STRING "The ILCSoft install prefix" )
@@ -40,7 +40,7 @@ function( ilcsoft_detect_configuration )
   set( ILCSOFT_INSTALL_MODES base ilcsoft )
   if( NOT DEFINED ILCSOFT_INSTALL_MODE )
     message( FATAL_ERROR "ILCSOFT_INSTALL_MODE is not set (base or ilcsoft)!" )
-    message( FATAL_ERROR "Please use e.g -DILCSOFT_INSTALL_MODE=base to set it" )    
+    message( FATAL_ERROR "Please use e.g -DILCSOFT_INSTALL_MODE=base to set it" )
   endif()
   if( NOT "${ILCSOFT_INSTALL_MODE}" IN_LIST ILCSOFT_INSTALL_MODES )
     message( FATAL_ERROR "ILCSOFT_INSTALL_MODE must be set to \"base\" or \"ilcsoft\"" )
@@ -69,7 +69,7 @@ function( ilcsoft_detect_configuration )
   message( STATUS "+ Loading versions file ... OK" )
   # set additional properties after getting versions
   set_property( GLOBAL PROPERTY ILCSOFT_PACKAGE_VERSION ${ILCSOFT_PACKAGE_VERSION} )
-  set( ${PROJECT_NAME}_VERSION ${ILCSOFT_PACKAGE_VERSION} )  
+  set( ${PROJECT_NAME}_VERSION ${ILCSOFT_PACKAGE_VERSION} )
   if( "${ILCSOFT_INSTALL_MODE}" STREQUAL "ilcsoft" )
     set_property( GLOBAL PROPERTY ILCSOFT_INSTALL_PREFIX_FULL ${install_prefix}/${ILCSOFT_PACKAGE_VERSION} )
   endif()
@@ -239,6 +239,23 @@ function( ilcsoft_install_package )
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
+#  ilcsoft_external_package
+#
+#  Arguments
+#  ---------
+#  PACKAGE          -> The external package to check
+#
+#  \author  R.Ete
+#  \version 1.0
+#
+#---------------------------------------------------------------------------------------------------
+function( ilcsoft_external_package )
+  cmake_parse_arguments(ARG "" "PACKAGE" "" ${ARGN} )
+  set( ILCSOFT_PACKAGE_${ARG_PACKAGE}_INSTALL_MODE "external" )
+  ilcsoft_load_package( PACKAGE ${ARG_PACKAGE} )
+endfunction()
+
+#---------------------------------------------------------------------------------------------------
 #  ilcsoft_link_package
 #
 #  Arguments
@@ -277,9 +294,9 @@ function( ilcsoft_link_package )
     message( STATUS "[DEBUG] creating ${ARG_PACKAGE} package directory ${parent_dir}" )
     file( MAKE_DIRECTORY ${parent_dir} )
   endif()
-  ADD_CUSTOM_TARGET( 
-    ${ARG_PACKAGE}_link ALL 
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${ARG_PATH} ${pkg_install_dir} 
+  ADD_CUSTOM_TARGET(
+    ${ARG_PACKAGE}_link ALL
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${ARG_PATH} ${pkg_install_dir}
   )
 endfunction()
 
@@ -311,7 +328,7 @@ function( ilcsoft_install_marlinpkg )
   set( MarlinPkg_DEPENDS Marlin LCIO ${ARG_DEPENDS} )
   get_property( binary_dir GLOBAL PROPERTY ILCSOFT_BINARY_DIR )
   set( pkg_cmake_dir ${binary_dir}/${MarlinPkg_NAME} )
-  configure_file( 
+  configure_file(
     ${PROJECT_SOURCE_DIR}/cmake/packages/MarlinPkg.cmake.in
     ${pkg_cmake_dir}/CMakeLists.txt
     @ONLY
@@ -337,10 +354,14 @@ endfunction()
 #
 #---------------------------------------------------------------------------------------------------
 function( ilcsoft_package )
-  cmake_parse_arguments( ARG "BASE" "NAME" "DEPENDS" ${ARGN} )
+  cmake_parse_arguments( ARG "BASE;NO_INSTALL_SUPPORT" "NAME" "DEPENDS" ${ARGN} )
   set( pkg_full_depends )
   set( pkg_depends ${ARG_DEPENDS} )
   set( pkg_name ${ARG_NAME} )
+  set( pkg_install_mode ${ILCSOFT_PACKAGE_${ARG_PACKAGE}_INSTALL_MODE} )
+  if( ARG_NO_INSTALL_SUPPORT AND "${pkg_install_mode}" STREQUAL "install" )
+    message( FATAL_ERROR "Package ${pkg_name} has no install support!" )
+  endif()
   # package name
   ilcsoft_set_package_property( PROPERTY NAME VALUE ${pkg_name} )
   # package version
@@ -443,7 +464,7 @@ endfunction()
 #
 #---------------------------------------------------------------------------------------------------
 function( ilcsoft_get_export_package_property )
-  cmake_parse_arguments( ARG "" "VAR;PACKAGE;PROPERTY" "" ${ARGN} )  
+  cmake_parse_arguments( ARG "" "VAR;PACKAGE;PROPERTY" "" ${ARGN} )
   get_property( var GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_${ARG_PACKAGE}_${ARG_PROPERTY} )
   set( ${ARG_VAR} ${var} PARENT_SCOPE )
 endfunction()
@@ -456,7 +477,7 @@ endfunction()
 #  NO_INSTALL         -> Whether to suppress the install command
 #  MODE               -> The installation mode of package (GIT_REPO, SVN_REPO or WGET)
 #  TARGET             -> The target name (optional). Default is package name
-#  URL                -> The http url (for WGET) or the git url (for GIT_REPO) or svn repo (for SVN_REPO) 
+#  URL                -> The http url (for WGET) or the git url (for GIT_REPO) or svn repo (for SVN_REPO)
 #  BUILD_COMMAND      -> The build command (overwrite the default 'make -jN')
 #  CONFIGURE_COMMAND  -> The configure command (overwrite 'cmake')
 #  BUILD_IN_SOURCE    -> Whether to build the package in the source directory
@@ -468,7 +489,7 @@ endfunction()
 function( ilcsoft_package_install_target )
   include( ExternalProject )
   cmake_parse_arguments( ARG "SOURCE_INSTALL;NO_INSTALL;BUILD_IN_SOURCE" "SVN_PATH;MODE;TARGET;URL" "BUILD_COMMAND;CONFIGURE_COMMAND;INSTALL_COMMAND" ${ARGN} )
-  # get needed properties  
+  # get needed properties
   ilcsoft_get_package_property( VAR pkg_name PROPERTY NAME )
   ilcsoft_get_package_property( VAR pkg_version PROPERTY VERSION )
   ilcsoft_get_package_property( VAR pkg_depends PROPERTY DEPENDS )
@@ -490,11 +511,11 @@ function( ilcsoft_package_install_target )
   if( NOT "${ARG_MODE}" IN_LIST available_modes )
     message( FATAL_ERROR "Package ${pkg_name} unknown install mode (${ARG_MODE} ?)" )
   endif()
-  # set the target name, either the one specified by the user or the package name 
+  # set the target name, either the one specified by the user or the package name
   if( NOT DEFINED ARG_TARGET )
     set( ARG_TARGET ${pkg_name} )
   endif()
-  # handle package dependencies 
+  # handle package dependencies
   set( pkg_target_depends "" )
   foreach( pkg_dep ${pkg_depends} )
     if( TARGET ${pkg_dep} )
@@ -567,7 +588,7 @@ function( ilcsoft_package_install_target )
     if( NOT "${cmake_var}" IN_LIST cmake_envs )
       if( cmake_var_value )
         list( APPEND CMAKE_ARGS "-D${cmake_var}=${cmake_var_value} " )
-      endif()      
+      endif()
     endif()
   endforeach()
   list( APPEND CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PKG_INSTALL_DIR} )
@@ -662,7 +683,7 @@ function( ilcsoft_package_add_marlindll )
   if( NOT pkg_name )
     message( FATAL_ERROR "ilcsoft_package_add_marlindll must be called from within a package macro !" )
   endif()
-  # if no library provided, build the name from the 
+  # if no library provided, build the name from the
   # package name as {installdir}/lib/lib{Pkg}.{ext}
   if( NOT ARG_LIBRARIES )
     ilcsoft_get_package_property( VAR pkg_install_dir PROPERTY INSTALL_DIR )
@@ -674,7 +695,7 @@ endfunction()
 
 #---------------------------------------------------------------------------------------------------
 #  ilcsoft_export_package
-#  
+#
 #  \author  R.Ete
 #  \version 1.0
 #
@@ -703,7 +724,7 @@ function( ilcsoft_export_package )
     ilcsoft_get_package_property( VAR pkg_export_val PROPERTY EXPORT_VARS_${pkg_export_var} )
     set_property( GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_${pkg_name}_EXPORT_VARS_${pkg_export_var} ${pkg_export_val} )
   endforeach()
-  # append MARLIN_DLL 
+  # append MARLIN_DLL
   ilcsoft_get_package_property( VAR pkg_marlin_dll PROPERTY MARLIN_DLL )
   set_property( GLOBAL APPEND PROPERTY ILCSOFT_PKG_EXPORT_MARLIN_DLL ${pkg_marlin_dll} )
   set_property( GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_${pkg_name}_EXPORTED ON )
@@ -711,7 +732,7 @@ endfunction()
 
 #---------------------------------------------------------------------------------------------------
 #  ilcsoft_write_cmake_file
-#  
+#
 #  \author  R.Ete
 #  \version 1.0
 #
@@ -724,22 +745,22 @@ function( ilcsoft_write_cmake_file )
     file( REMOVE ${ILCSOFT_CMAKE_FILE} )
   endif()
   string( TIMESTAMP current_time UTC )
-  file( APPEND ${ILCSOFT_CMAKE_FILE} 
+  file( APPEND ${ILCSOFT_CMAKE_FILE}
     "################################################################################\n"
     "# Environment script generated by ILCInstall package on ${current_time}\n"
     "# for the installation located at [ ${ILCSOFT_INSTALL_PREFIX_FULL} ]\n"
     "################################################################################\n\n"
   )
-  file( APPEND ${ILCSOFT_CMAKE_FILE} 
+  file( APPEND ${ILCSOFT_CMAKE_FILE}
     "SET( ILC_HOME \"${ILCSOFT_INSTALL_PREFIX_FULL}\" CACHE PATH \"Path to ILC Software\" FORCE)\n"
     "MARK_AS_ADVANCED( ILC_HOME )\n\n"
   )
-  file( APPEND ${ILCSOFT_CMAKE_FILE} 
+  file( APPEND ${ILCSOFT_CMAKE_FILE}
     "SET( CMAKE_PREFIX_PATH \n"
   )
   get_property( pkg_list GLOBAL PROPERTY ILCSOFT_PACKAGE_LIST )
   get_property( install_prefix GLOBAL PROPERTY ILCSOFT_INSTALL_PREFIX_FULL )
-  
+
   foreach( pkg ${pkg_list} )
     ilcsoft_get_export_package_property( VAR pkg_install_dir PACKAGE ${pkg} PROPERTY INSTALL_DIR )
     if( pkg_install_dir )
@@ -747,20 +768,20 @@ function( ilcsoft_write_cmake_file )
       string( FIND pkg_install_dir install_prefix pkg_is_ilcsoft )
       if( pkg_is_ilcsoft )
         ilcsoft_get_export_package_property( VAR pkg_version PACKAGE ${pkg} PROPERTY VERSION )
-        file( APPEND ${ILCSOFT_CMAKE_FILE} 
+        file( APPEND ${ILCSOFT_CMAKE_FILE}
           "\t\${ILC_HOME}/${pkg}/${pkg_version};\n"
         )
       else()
-        file( APPEND ${ILCSOFT_CMAKE_FILE} 
+        file( APPEND ${ILCSOFT_CMAKE_FILE}
           "${pkg_install_dir};\n"
         )
       endif()
     endif()
   endforeach()
-  file( APPEND ${ILCSOFT_CMAKE_FILE} 
+  file( APPEND ${ILCSOFT_CMAKE_FILE}
     "CACHE PATH \"CMAKE_PREFIX_PATH\" FORCE )\n\n"
   )
-  file( APPEND ${ILCSOFT_CMAKE_FILE} 
+  file( APPEND ${ILCSOFT_CMAKE_FILE}
     "option( USE_CXX11 \"Use cxx11\" ${ILCSOFT_USE_CXX11} )\n"
     "option( Boost_NO_BOOST_CMAKE \"dont use cmake find module for boost\" ${ILCSOFT_NO_BOOST_CMAKE} )\n"
     "set( CMAKE_CXX_FLAGS_RELWITHDEBINFO \"-O2 -g\" CACHE STRING \"\" FORCE )\n"
@@ -770,7 +791,7 @@ endfunction()
 
 #---------------------------------------------------------------------------------------------------
 #  ilcsoft_write_init_file
-#  
+#
 #  \author  R.Ete
 #  \version 1.0
 #
@@ -808,7 +829,7 @@ function( ilcsoft_write_init_file )
   message( STATUS "+=> C compiler dir: ${c_bin_dir}" )
   message( STATUS "+=> C dir: ${c_dir}" )
   # write init script
-  file( APPEND ${ILCSOFT_INIT_FILE} 
+  file( APPEND ${ILCSOFT_INIT_FILE}
     "export ILCSOFT=${ILCSOFT_INSTALL_PREFIX_FULL}\n"
     "\n# -------------------------------------------------------------------- ---\n"
     "\n# ---  Use the same compiler and python as used for the installation   ---\n"
@@ -831,20 +852,20 @@ function( ilcsoft_write_init_file )
     endif()
     foreach( pkg_export_var ${pkg_export_vars} )
       ilcsoft_get_export_package_property( PACKAGE ${pkg} VAR pkg_export_val PROPERTY EXPORT_VARS_${pkg_export_var} )
-      if( "${pkg_export_var}" STREQUAL "PATH" 
-       OR "${pkg_export_var}" STREQUAL "LD_LIBRARY_PATH" 
+      if( "${pkg_export_var}" STREQUAL "PATH"
+       OR "${pkg_export_var}" STREQUAL "LD_LIBRARY_PATH"
        OR "${pkg_export_var}" STREQUAL "PYTHONPATH" )
-        file( APPEND ${ILCSOFT_INIT_FILE} 
+        file( APPEND ${ILCSOFT_INIT_FILE}
           "export ${pkg_export_var}=${pkg_export_val}:\$${pkg_export_var}\n"
         )
       else()
-        file( APPEND ${ILCSOFT_INIT_FILE} 
+        file( APPEND ${ILCSOFT_INIT_FILE}
           "export ${pkg_export_var}=${pkg_export_val}\n"
         )
       endif()
     endforeach()
   endforeach()
-  # export the MARLIN_DLL from all packages 
+  # export the MARLIN_DLL from all packages
   get_property( all_marlin_dll GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_MARLIN_DLL )
   if( all_marlin_dll )
     set( MARLIN_DLL_STR "export MARLIN_DLL=" )
@@ -864,7 +885,7 @@ endfunction()
 
 #---------------------------------------------------------------------------------------------------
 #  ilcsoft_setup_install
-#  
+#
 #  \author  R.Ete
 #  \version 1.0
 #
@@ -877,7 +898,7 @@ function( ilcsoft_setup_install )
   ilcsoft_add_cmake_env( VAR "INSTALL_DOC" VALUE ${ILCSOFT_INSTALL_DOC} )
   ilcsoft_add_cmake_env( VAR "CMAKE_BUILD_TYPE" VALUE ${CMAKE_BUILD_TYPE} )
   ilcsoft_add_cmake_env( VAR "Boost_NO_BOOST_CMAKE" VALUE ${ILCSOFT_NO_BOOST_CMAKE} )
-  if( NOT "${COMPILE_CORES}" MATCHES "^[0-9]+$" ) 
+  if( NOT "${COMPILE_CORES}" MATCHES "^[0-9]+$" )
     message( WARNING "Value supplied for COMPILE_CORES is not a number (${COMPILE_CORES}). Setting COMPILE_CORES to 1 !" )
     set( COMPILE_CORES "1" CACHE STRING "The number of cores to use for compiling each package" )
   endif()
@@ -886,7 +907,7 @@ endfunction()
 
 #---------------------------------------------------------------------------------------------------
 #  ilcsoft_print_summary
-#  
+#
 #  \author  R.Ete
 #  \version 1.0
 #
@@ -923,4 +944,3 @@ function( ilcsoft_print_summary )
     endif()
   endforeach()
 endfunction()
-
