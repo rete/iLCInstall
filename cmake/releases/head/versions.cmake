@@ -2,9 +2,9 @@
 set( ILCSOFT_PACKAGE_VERSION "master" CACHE STRING "The ILCSoft version" )
 ilcsoft_set_package_version( PACKAGE ILCSoft                  VERSION "master" )
 
-# Packages with no install support 
-ilcsoft_set_package_version( PACKAGE MySQL                    VERSION "5.1.73" )
-ilcsoft_set_package_version( PACKAGE Boost                    VERSION "boost-1.58.0" )
+# Packages with no install support
+ilcsoft_set_package_version( PACKAGE Boost                    VERSION "1.59.0" )
+ilcsoft_set_package_version( PACKAGE MySQL                    VERSION "5.1.0" )
 ilcsoft_set_package_version( PACKAGE Eigen                    VERSION "3.2.9" )
 
 # ILCSoft base packages versions
@@ -64,8 +64,3 @@ ilcsoft_set_package_version( PACKAGE DD4hep                   VERSION "master" )
 ilcsoft_set_package_version( PACKAGE DD4hepExamples           VERSION "master" )
 ilcsoft_set_package_version( PACKAGE lcgeo                    VERSION "master" )
 ilcsoft_set_package_version( PACKAGE Physsim                  VERSION "master" )
-
-
-
-
-
