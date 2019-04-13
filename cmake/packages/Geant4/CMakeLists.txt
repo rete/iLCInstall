@@ -3,6 +3,7 @@
 option( GEANT4_WITH_QT            "Whether to build Geant4 with QT support" ON )
 option( GEANT4_WITH_CLHEP         "Whether to build Geant4 with CLHEP support" ON )
 option( GEANT4_WITH_XERCESX       "Whether to build Geant4 with XercesC support" ON )
+option( GEANT4_RPATH_INSTALL      "Build Geant4 with rpath install" ON )
 
 set( Geant4_DEPENDS )
 # QT dependency
@@ -20,16 +21,16 @@ endif()
 
 # declare package
 if( Geant4_DEPENDS )
-  ilcsoft_package( 
-    NAME Geant4 
+  ilcsoft_package(
+    NAME Geant4
     DEPENDS ${Geant4_DEPENDS}
-    BASE 
+    BASE
   )
 else()
-  ilcsoft_package( 
-    NAME Geant4 
-    BASE 
-  )  
+  ilcsoft_package(
+    NAME Geant4
+    BASE
+  )
 endif()
 
 # setup cmake variables to pass to Geant4
@@ -41,6 +42,7 @@ if( ILCSOFT_USE_CXX11 )
   ilcsoft_add_cmake_env( VAR GEANT4_BUILD_CXXSTD VALUE "c++11" )
 endif()
 ilcsoft_add_cmake_env( VAR GEANT4_USE_SYSTEM_CLHEP VALUE ${GEANT4_WITH_CLHEP} )
+ilcsoft_add_cmake_env( VAR CMAKE_INSTALL_RPATH_USE_LINK_PATH VALUE ${GEANT4_RPATH_INSTALL} )
 
 # QT dependency
 if( GEANT4_WITH_QT )
@@ -61,7 +63,7 @@ endif()
 
 # install the git repo
 ilcsoft_package_install_target(
-  MODE GIT_REPO 
+  MODE GIT_REPO
   URL "https://gitlab.cern.ch/geant4/geant4.git"
 )
 
@@ -80,6 +82,7 @@ endif()
 ilcsoft_get_package_property( VAR install_dir PROPERTY INSTALL_DIR )
 ilcsoft_add_export_variable( NAME G4INSTALL VALUE ${install_dir} )
 ilcsoft_add_export_variable( NAME G4ENV_INIT VALUE "$G4INSTALL/bin/geant4.sh" )
+ilcsoft_add_custom_export( "test -r $G4ENV_INIT && { cd $(dirname $G4ENV_INIT) ; . ./$(basename $G4ENV_INIT) ; cd $OLDPWD ; }" )
 
 # export the package
 ilcsoft_export_package()
