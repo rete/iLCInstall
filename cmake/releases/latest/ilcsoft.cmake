@@ -1,8 +1,9 @@
 
+# external package without install support
+ilcsoft_external_package( PACKAGE MySQL )
+ilcsoft_external_package( PACKAGE Boost )
 
 # base packages: create links
-ilcsoft_link_package( PACKAGE MySQL )
-ilcsoft_link_package( PACKAGE Boost )
 ilcsoft_link_package( PACKAGE Eigen )
 ilcsoft_link_package( PACKAGE ILCUTIL )
 ilcsoft_link_package( PACKAGE CondDBMySQL )
@@ -58,24 +59,23 @@ ilcsoft_install_marlinpkg( PACKAGE MarlinKinfitProcessors DEPENDS GEAR GSL )
 ilcsoft_install_marlinpkg( PACKAGE ILDPerformance DEPENDS ROOT )
 ilcsoft_install_marlinpkg( PACKAGE Clupatra DEPENDS ROOT RAIDA MarlinUtil KalTest MarlinTrk )
 ilcsoft_install_marlinpkg( PACKAGE Physsim DEPENDS ROOT )
-ilcsoft_install_marlinpkg( 
-  PACKAGE FCalClusterer 
-  DEPENDS DD4hep ROOT GSL 
+ilcsoft_install_marlinpkg(
+  PACKAGE FCalClusterer
+  DEPENDS DD4hep ROOT GSL
   GIT_USER "FCALSW"
   GIT_REPO "FCalClusterer"
 )
-ilcsoft_install_marlinpkg( 
-  PACKAGE LCFIPlus 
-  DEPENDS GEAR ROOT MarlinUtil LCFIVertex 
+ilcsoft_install_marlinpkg(
+  PACKAGE LCFIPlus
+  DEPENDS GEAR ROOT MarlinUtil LCFIVertex
   GIT_USER "lcfiplus"
   GIT_REPO "LCFIPlus"
 )
 ilcsoft_install_marlinpkg( PACKAGE ForwardTracking DEPENDS GEAR ROOT GSL MarlinUtil MarlinTrk )
 ilcsoft_install_marlinpkg( PACKAGE ConformalTracking DEPENDS ROOT MarlinTrk )
-ilcsoft_install_marlinpkg( 
-  PACKAGE LICH 
-  DEPENDS ROOT MarlinUtil 
+ilcsoft_install_marlinpkg(
+  PACKAGE LICH
+  DEPENDS ROOT MarlinUtil
   GIT_USER "danerdaner"
   GIT_REPO "LICH"
 )
-

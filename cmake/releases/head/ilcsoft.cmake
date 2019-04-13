@@ -1,7 +1,9 @@
 
+# external package without install support
+ilcsoft_external_package( PACKAGE MySQL )
+ilcsoft_external_package( PACKAGE Boost )
+
 # base packages: create links
-ilcsoft_link_package( PACKAGE Boost )
-ilcsoft_link_package( PACKAGE MySQL )
 ilcsoft_link_package( PACKAGE Eigen )
 ilcsoft_link_package( PACKAGE ILCUTIL )
 ilcsoft_link_package( PACKAGE CondDBMySQL )
