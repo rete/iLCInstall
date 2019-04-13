@@ -9,6 +9,7 @@ ilcsoft_package(
 ilcsoft_package_install_target(
   MODE GIT_REPO 
   URL "https://github.com/iLCSoft/DDKalTest.git"
+  SOURCE_INSTALL
 )
 
 # export the package
