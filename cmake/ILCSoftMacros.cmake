@@ -547,6 +547,8 @@ function( ilcsoft_package_install_target )
     set( SOURCE_DIR ${PKG_INSTALL_DIR} )
     if( NOT BUILD_IN_SOURCE )
       set( BINARY_DIR ${SOURCE_DIR}/build )
+    else()
+      set( BINARY_DIR )
     endif()
   endif()
   set( BUILD_COMMAND make -j${COMPILE_CORES} )
@@ -693,6 +695,19 @@ function( ilcsoft_package_add_marlindll )
   ilcsoft_set_package_property( APPEND PROPERTY MARLIN_DLL VALUE ${ARG_LIBRARIES} )
 endfunction()
 
+
+
+function( ilcsoft_add_custom_export )
+  # cmake_parse_arguments( ARG "" "" "LIBRARIES" ${ARGN} )
+  # get the package name
+  ilcsoft_get_package_property( VAR pkg_name PROPERTY NAME )
+  if( NOT pkg_name )
+    message( FATAL_ERROR "ilcsoft_add_custom_export must be called from within a package macro !" )
+  endif()
+  message( STATUS "++=> Package ${pkg_name}, adding custom script to export: ${ARGN}" )
+  ilcsoft_set_package_property( APPEND PROPERTY CUSTOM_SCRIPT VALUE ${ARGN} )
+endfunction()
+
 #---------------------------------------------------------------------------------------------------
 #  ilcsoft_export_package
 #
@@ -727,6 +742,8 @@ function( ilcsoft_export_package )
   # append MARLIN_DLL
   ilcsoft_get_package_property( VAR pkg_marlin_dll PROPERTY MARLIN_DLL )
   set_property( GLOBAL APPEND PROPERTY ILCSOFT_PKG_EXPORT_MARLIN_DLL ${pkg_marlin_dll} )
+  ilcsoft_get_package_property( VAR pkg_custom_script PROPERTY CUSTOM_SCRIPT )
+  set_property( GLOBAL APPEND PROPERTY ILCSOFT_PKG_EXPORT_CUSTOM_SCRIPT ${pkg_custom_script} )
   set_property( GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_${pkg_name}_EXPORTED ON )
 endfunction()
 
@@ -881,6 +898,13 @@ function( ilcsoft_write_init_file )
     "#--------------------------------------------------------------------------------\n"
     "\n${MARLIN_DLL_STR}\n"
   )
+  get_property( all_custom_scripts GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_CUSTOM_SCRIPT )
+  foreach( script ${all_custom_scripts} )
+    file( APPEND ${ILCSOFT_INIT_FILE}
+      "${script}\n"
+    )
+  endforeach()
+  file( APPEND ${ILCSOFT_INIT_FILE} "\n" )
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
