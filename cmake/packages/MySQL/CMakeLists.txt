@@ -1,45 +1,33 @@
 
-
-ilcsoft_package( 
-  NAME MySQL 
-  BASE 
+ilcsoft_package(
+  NAME MySQL
+  NO_INSTALL_SUPPORT
 )
 
+set( MySQL_DIR "" CACHE STRING "Path to MySQL directory" )
 ilcsoft_get_package_property( VAR pkg_version PROPERTY VERSION )
-ilcsoft_get_package_property( VAR pkg_install_dir PROPERTY INSTALL_DIR )
 
-# install from archive using wget
-ilcsoft_package_install_target(
-  MODE WGET
-  URL "http://dev.mysql.com/get/Downloads/MySQL-5.1/mysql-${pkg_version}.tar.gz"
-  CONFIGURE_COMMAND ./configure 
-    --prefix=${pkg_install_dir}
-	  --enable-shared
- 	  --enable-static
-	  --enable-thread-safe-client
-	  --enable-assembler
-	  --enable-local-infile
-	  --with-fast-mutexes
-  	--with-big-tables
-	  --with-unix-socket-path=/var/run/mysqld/mysqld.sock
-	  --with-mysqld-user=mysql
-	  --with-libwrap
-	  --with-readline
-	  --with-ssl
-	  --without-docs
-	  --with-extra-charsets=all
-	  --with-plugins=max
-	  --with-embedded-server
-    --with-embedded-privilege-control
-  BUILD_IN_SOURCE
-)
+find_package( MySQL ${pkg_version} REQUIRED )
+
+# export variables
+ilcsoft_set_package_property( PROPERTY INSTALL_DIR VALUE ${MySQL_DIR} )
+ilcsoft_set_package_property( PROPERTY VERSION VALUE ${MySQL_VERSION} )
+get_filename_component( MySQL_BIN_DIR ${MySQL_CONFIG_EXECUTABLE} DIRECTORY )
+
+message( STATUS "++=> MySQL directory: ${MySQL_DIR}" )
+message( STATUS "++=> MySQL includes: ${MySQL_INCLUDE_DIRS}" )
+message( STATUS "++=> MySQL libraries: ${MySQL_LIBRARIES}" )
+message( STATUS "++=> MySQL library directory: ${MySQL_LIBRARY_DIRS}" )
+message( STATUS "++=> MySQL version: ${MySQL_VERSION}" )
+message( STATUS "++=> MySQL config executable: ${MySQL_CONFIG_EXECUTABLE}" )
+message( STATUS "++=> MySQL bin dir: ${MySQL_BIN_DIR}" )
 
 # export variables to init_ilcsoft.sh
-ilcsoft_add_export_variable( NAME MYSQL_HOME VALUE ${pkg_install_dir} )
+ilcsoft_add_export_variable( NAME MYSQL_HOME VALUE ${MySQL_DIR} )
 ilcsoft_add_export_variable( NAME MYSQL VALUE "$MYSQL_HOME" )
 ilcsoft_add_export_variable( NAME MYSQL_PATH VALUE "$MYSQL_HOME" )
-ilcsoft_add_export_variable( NAME MYSQL_LIBDIR VALUE "$MYSQL_HOME/lib/mysql" )
-ilcsoft_add_export_variable( NAME PATH VALUE "$MYSQL_HOME/bin" )
+ilcsoft_add_export_variable( NAME MYSQL_LIBDIR VALUE "${MySQL_LIBRARY_DIRS}" )
+ilcsoft_add_export_variable( NAME PATH VALUE "${MySQL_BIN_DIR}" )
 ilcsoft_add_export_variable( NAME LD_LIBRARY_PATH VALUE "$MYSQL_LIBDIR" )
 
 ilcsoft_export_package()
