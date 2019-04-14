@@ -14,6 +14,8 @@ else()
   find_package( Boost ${pkg_version} REQUIRED )
 endif()
 
+get_filename_component( Boost_ROOT DIRECTORY ${Boost_LIBRARY_DIRS} )
+
 message( STATUS "++=> Boost directory: ${Boost_ROOT}" )
 message( STATUS "++=> Boost version: ${Boost_VERSION}" )
 message( STATUS "++=> Boost includes: ${Boost_INCLUDE_DIRS}" )
