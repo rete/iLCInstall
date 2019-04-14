@@ -397,7 +397,6 @@ function( ilcsoft_package )
       if( pkg_deps )
         list( APPEND pkg_full_depends ${pkg_deps} )
       endif()
-
     endforeach()
     list( APPEND pkg_full_depends ${pkg_depends} )
     list( REMOVE_DUPLICATES pkg_full_depends )
@@ -547,6 +546,7 @@ function( ilcsoft_package_install_target )
     set( SOURCE_DIR ${PKG_INSTALL_DIR} )
     if( NOT BUILD_IN_SOURCE )
       set( BINARY_DIR ${SOURCE_DIR}/build )
+      file( MAKE_DIRECTORY ${BINARY_DIR} )
     else()
       set( BINARY_DIR )
     endif()
@@ -652,11 +652,11 @@ function( ilcsoft_package_install_target )
       SOURCE_DIR ${SOURCE_DIR}
       ${FULL_BINARY_DIR}
       ${FULL_CMAKE_ARGS}
-      BUILD_COMMAND ${BUILD_COMMAND}
+      BUILD_COMMAND . ${BUILD_ENV_FILE} COMMAND ${BUILD_COMMAND}
       ${FULL_CONFIGURE_COMMAND}
       INSTALL_DIR ${PKG_INSTALL_DIR}
       LIST_SEPARATOR %
-      ${FULL_INSTALL_COMMAND}
+      INSTALL_COMMAND . ${BUILD_ENV_FILE} COMMAND ${INSTALL_COMMAND}
     )
   else()
     # create a target to install the package
@@ -675,6 +675,9 @@ function( ilcsoft_package_install_target )
       INSTALL_COMMAND ""
     )
   endif()
+  # generate build_env.sh file
+  set( BUILD_ENV_FILE ${ILCSOFT_BINARY_DIR}/${pkg_name}/build_env.sh )
+  ilcsoft_generate_build_env( FILE ${BUILD_ENV_FILE} )
 endfunction()
 
 
@@ -743,7 +746,7 @@ function( ilcsoft_export_package )
   ilcsoft_get_package_property( VAR pkg_marlin_dll PROPERTY MARLIN_DLL )
   set_property( GLOBAL APPEND PROPERTY ILCSOFT_PKG_EXPORT_MARLIN_DLL ${pkg_marlin_dll} )
   ilcsoft_get_package_property( VAR pkg_custom_script PROPERTY CUSTOM_SCRIPT )
-  set_property( GLOBAL APPEND PROPERTY ILCSOFT_PKG_EXPORT_CUSTOM_SCRIPT ${pkg_custom_script} )
+  set_property( GLOBAL APPEND PROPERTY ILCSOFT_PKG_EXPORT_${pkg_name}_CUSTOM_SCRIPT ${pkg_custom_script} )
   set_property( GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_${pkg_name}_EXPORTED ON )
 endfunction()
 
@@ -881,6 +884,12 @@ function( ilcsoft_write_init_file )
         )
       endif()
     endforeach()
+    ilcsoft_get_export_package_property( PACKAGE ${pkg} VAR pkg_custom_scripts PROPERTY CUSTOM_SCRIPT )
+    foreach( script ${pkg_custom_scripts} )
+      file( APPEND ${ILCSOFT_INIT_FILE}
+        "${script}\n"
+      )
+    endforeach()
   endforeach()
   # export the MARLIN_DLL from all packages
   get_property( all_marlin_dll GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_MARLIN_DLL )
@@ -898,13 +907,83 @@ function( ilcsoft_write_init_file )
     "#--------------------------------------------------------------------------------\n"
     "\n${MARLIN_DLL_STR}\n"
   )
-  get_property( all_custom_scripts GLOBAL PROPERTY ILCSOFT_PKG_EXPORT_CUSTOM_SCRIPT )
-  foreach( script ${all_custom_scripts} )
-    file( APPEND ${ILCSOFT_INIT_FILE}
-      "${script}\n"
-    )
-  endforeach()
   file( APPEND ${ILCSOFT_INIT_FILE} "\n" )
+endfunction()
+
+
+#---------------------------------------------------------------------------------------------------
+#  ilcsoft_generate_build_env
+#
+#  \author  R.Ete
+#  \version 1.0
+#
+#---------------------------------------------------------------------------------------------------
+function( ilcsoft_generate_build_env )
+  cmake_parse_arguments( ARG "" "FILE" "" ${ARGN} )
+  # get needed properties
+  get_property( ILCSOFT_INSTALL_PREFIX_FULL GLOBAL PROPERTY ILCSOFT_INSTALL_PREFIX_FULL )
+  ilcsoft_get_package_property( VAR pkg_name PROPERTY NAME )
+  ilcsoft_get_package_property( VAR pkg_depends PROPERTY DEPENDS )
+  ilcsoft_get_package_property( VAR pkg_custom_scripts PROPERTY CUSTOM_SCRIPT )
+  # not in a package directory ?
+  if( NOT pkg_name )
+    message( FATAL_ERROR "ilcsoft_generate_build_env must be called from within a package macro !" )
+  endif()
+  # find python executable
+  find_package( PythonInterp REQUIRED QUIET )
+  get_filename_component( python_interp_dir ${PYTHON_EXECUTABLE} DIRECTORY )
+  get_filename_component( python_dir ${python_interp_dir} DIRECTORY )
+  # compiler settings
+  get_filename_component( cxx_bin_dir ${CMAKE_CXX_COMPILER} DIRECTORY )
+  get_filename_component( cxx_dir ${cxx_bin_dir} DIRECTORY )
+  get_filename_component( cxx_name ${CMAKE_CXX_COMPILER} NAME )
+  get_filename_component( c_bin_dir ${CMAKE_C_COMPILER} DIRECTORY )
+  get_filename_component( c_dir ${c_bin_dir} DIRECTORY )
+  get_filename_component( c_name ${CMAKE_C_COMPILER} NAME )
+  # write init script
+  file( WRITE ${ARG_FILE}
+    "export ILCSOFT=${ILCSOFT_INSTALL_PREFIX_FULL}\n"
+    "\n# -------------------------------------------------------------------- ---\n"
+    "\n# ---  Use the same compiler and python as used for the installation   ---\n"
+    "\n# -------------------------------------------------------------------- ---\n"
+    "export PATH=${c_bin_dir}:${python_interp_dir}:\$PATH\n"
+    "export LD_LIBRARY_PATH=${cxx_dir}/lib64:${cxx_dir}/lib:${c_dir}/lib64:${c_dir}/lib:${python_dir}/lib:\$LD_LIBRARY_PATH\n\n"
+    "export CXX=${cxx_name}\n"
+    "export CC=${c_name}\n"
+  )
+  # go through dependencies and gather all exports
+  foreach( pkg ${pkg_depends} )
+    ilcsoft_get_export_package_property( PACKAGE ${pkg} VAR pkg_export_vars PROPERTY EXPORT_VARS )
+    if( pkg_export_vars )
+      file( APPEND ${ARG_FILE}
+        "\n\n"
+        "#--------------------------------------------------------------------------------\n"
+        "#    ${pkg}\n"
+        "#--------------------------------------------------------------------------------\n"
+      )
+    endif()
+    foreach( pkg_export_var ${pkg_export_vars} )
+      ilcsoft_get_export_package_property( PACKAGE ${pkg} VAR pkg_export_val PROPERTY EXPORT_VARS_${pkg_export_var} )
+      if( "${pkg_export_var}" STREQUAL "PATH"
+       OR "${pkg_export_var}" STREQUAL "LD_LIBRARY_PATH"
+       OR "${pkg_export_var}" STREQUAL "PYTHONPATH" )
+        file( APPEND ${ARG_FILE}
+          "export ${pkg_export_var}=${pkg_export_val}:\$${pkg_export_var}\n"
+        )
+      else()
+        file( APPEND ${ARG_FILE}
+          "export ${pkg_export_var}=${pkg_export_val}\n"
+        )
+      endif()
+    endforeach()
+    ilcsoft_get_export_package_property( PACKAGE ${pkg} VAR pkg_custom_scripts PROPERTY CUSTOM_SCRIPT )
+    foreach( script ${pkg_custom_scripts} )
+      file( APPEND ${ARG_FILE}
+        "${script}\n"
+      )
+    endforeach()
+  endforeach()
+  file( APPEND ${ARG_FILE} "\n" )
 endfunction()
 
 #---------------------------------------------------------------------------------------------------
