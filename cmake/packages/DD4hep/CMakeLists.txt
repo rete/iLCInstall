@@ -1,8 +1,8 @@
 
-option( DD4hep_RPATH_INSTALL "Build DD4hep with rpath install" ON )
+option( DD4hep_RPATH_INSTALL "Build DD4hep with rpath install" OFF )
 
 # declare package
-ilcsoft_package( 
+ilcsoft_package(
   NAME DD4hep
   DEPENDS ROOT LCIO GEAR Geant4 CLHEP Boost
 )
@@ -15,14 +15,16 @@ ilcsoft_add_cmake_env( VAR DD4HEP_USE_XERCESC VALUE OFF )
 ilcsoft_add_cmake_env( VAR DD4HEP_USE_PYROOT VALUE OFF )
 ilcsoft_add_cmake_env( VAR DD4HEP_USE_GEAR VALUE ON )
 ilcsoft_add_cmake_env( VAR DD4HEP_USE_BOOST VALUE ON )
-ilcsoft_add_cmake_env( VAR CMAKE_INSTALL_RPATH_USE_LINK_PATH VALUE ${DD4hep_RPATH_INSTALL} )
+if( DD4hep_RPATH_INSTALL )
+  ilcsoft_add_cmake_env( VAR CMAKE_INSTALL_RPATH_USE_LINK_PATH VALUE ON )
+endif()
 if( ILCSOFT_USE_CXX11 )
   ilcsoft_add_cmake_env( VAR DD4HEP_USE_CXX11 VALUE ON )
 endif()
 
 # install the git repo
 ilcsoft_package_install_target(
-  MODE GIT_REPO 
+  MODE GIT_REPO
   URL "https://github.com/AIDASoft/DD4hep.git"
 )
 
