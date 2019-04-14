@@ -24,6 +24,6 @@ ilcsoft_set_package_property( PROPERTY INSTALL_DIR VALUE ${Boost_ROOT} )
 ilcsoft_set_package_property( PROPERTY VERSION VALUE ${Boost_VERSION} )
 
 # export variables to init_ilcsoft.sh
-ilcsoft_add_export_variable( NAME BOOST_ROOT VALUE ${pkg_install_dir} )
+ilcsoft_add_export_variable( NAME BOOST_ROOT VALUE ${Boost_ROOT} )
 
 ilcsoft_export_package()
