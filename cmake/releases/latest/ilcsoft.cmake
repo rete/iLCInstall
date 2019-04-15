@@ -56,7 +56,7 @@ ilcsoft_install_marlinpkg( PACKAGE MarlinKinfit DEPENDS GEAR GSL )
 ilcsoft_install_package( PACKAGE MarlinReco )
 ilcsoft_install_marlinpkg( PACKAGE MarlinTrkProcessors DEPENDS ROOT GSL MarlinUtil KalTest KalDet MarlinTrk KiTrack KiTrackMarlin )
 ilcsoft_install_marlinpkg( PACKAGE MarlinKinfitProcessors DEPENDS GEAR GSL )
-ilcsoft_install_marlinpkg( PACKAGE ILDPerformance DEPENDS ROOT )
+ilcsoft_install_marlinpkg( PACKAGE ILDPerformance DEPENDS ROOT MarlinTrk aidaTT GBL DD4hep MarlinUtil GSL )
 ilcsoft_install_marlinpkg( PACKAGE Clupatra DEPENDS ROOT RAIDA MarlinUtil KalTest MarlinTrk )
 ilcsoft_install_marlinpkg( PACKAGE Physsim DEPENDS ROOT )
 ilcsoft_install_marlinpkg(
