@@ -2,7 +2,7 @@
 # declare package
 ilcsoft_package( 
   NAME MarlinTPC
-  DEPENDS LCIO GEAR GSL Marlin LCCD ROOT RAIDA CLHEP KalTest KalDet PathFinder GBL
+  DEPENDS LCIO GEAR GSL Marlin LCCD ROOT RAIDA CLHEP KalTest KalDet PathFinder GBL Eigen
 )
 
 # install the git repo
