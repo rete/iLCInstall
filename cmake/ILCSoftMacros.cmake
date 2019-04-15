@@ -544,12 +544,9 @@ function( ilcsoft_package_install_target )
   endif()
   if( ARG_SOURCE_INSTALL )
     set( SOURCE_DIR ${PKG_INSTALL_DIR} )
-    if( NOT BUILD_IN_SOURCE )
-      set( BINARY_DIR ${SOURCE_DIR}/build )
-      file( MAKE_DIRECTORY ${BINARY_DIR} )
-    else()
-      set( BINARY_DIR )
-    endif()
+  endif()
+  if( BINARY_DIR )
+    file( MAKE_DIRECTORY ${BINARY_DIR} )
   endif()
   set( BUILD_COMMAND make -j${COMPILE_CORES} )
   if( DEFINED ARG_BUILD_COMMAND )
@@ -642,6 +639,7 @@ function( ilcsoft_package_install_target )
   if( pkg_target_depends )
     set( DEPENDS_FULL DEPENDS ${pkg_target_depends} )
   endif()
+  set( BUILD_ENV_FILE ${ILCSOFT_BINARY_DIR}/${pkg_name}/build_env.sh )
   if( INSTALL_COMMAND )
     # create a target to install the package
     ExternalProject_Add(
@@ -668,7 +666,7 @@ function( ilcsoft_package_install_target )
       SOURCE_DIR ${SOURCE_DIR}
       ${FULL_BINARY_DIR}
       ${FULL_CMAKE_ARGS}
-      BUILD_COMMAND ${BUILD_COMMAND}
+      BUILD_COMMAND . ${BUILD_ENV_FILE} COMMAND ${BUILD_COMMAND}
       ${FULL_CONFIGURE_COMMAND}
       INSTALL_DIR ${PKG_INSTALL_DIR}
       LIST_SEPARATOR %
@@ -676,7 +674,6 @@ function( ilcsoft_package_install_target )
     )
   endif()
   # generate build_env.sh file
-  set( BUILD_ENV_FILE ${ILCSOFT_BINARY_DIR}/${pkg_name}/build_env.sh )
   ilcsoft_generate_build_env( FILE ${BUILD_ENV_FILE} )
 endfunction()
 
