@@ -4,7 +4,7 @@ set( ILCSOFT_PACKAGE_VERSION "v02-00-02" CACHE STRING "The ILCSoft version" )
 ilcsoft_set_package_version( PACKAGE ILCSoft                  VERSION ${ILCSOFT_PACKAGE_VERSION} )
 
 # Packages with no install support
-ilcsoft_set_package_version( PACKAGE Boost                    VERSION "1.59.0" )
+ilcsoft_set_package_version( PACKAGE Boost                    VERSION "1.58.0" )
 ilcsoft_set_package_version( PACKAGE MySQL                    VERSION "5.1.0" )
 ilcsoft_set_package_version( PACKAGE Eigen                    VERSION "3.2.9" )
 
