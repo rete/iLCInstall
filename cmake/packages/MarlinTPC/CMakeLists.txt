@@ -5,6 +5,9 @@ ilcsoft_package(
   DEPENDS LCIO GEAR GSL Marlin LCCD ROOT RAIDA CLHEP KalTest KalDet PathFinder GBL Eigen
 )
 
+ilcsoft_get_export_package_property( VAR eigen_install_dir PACKAGE Eigen PROPERTY INSTALL_DIR )
+ilcsoft_add_cmake_env( VAR Eigen3_DIR VALUE ${eigen_install_dir} )
+
 # install the git repo
 ilcsoft_package_install_target(
   MODE SVN_REPO 
