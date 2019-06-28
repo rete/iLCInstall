@@ -10,6 +10,7 @@ ilcsoft_package_install_target(
   MODE SVN_REPO 
   URL "https://svnsrv.desy.de/public/GeneralBrokenLines"
   SVN_PATH cpp
+  SOURCE_INSTALL
 )
 
 # export variables to init_ilcsoft.sh
