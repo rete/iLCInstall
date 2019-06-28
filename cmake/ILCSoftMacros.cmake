@@ -553,7 +553,7 @@ function( ilcsoft_package_install_target )
     set( BUILD_COMMAND ${ARG_BUILD_COMMAND} )
   endif()
   set( FULL_CONFIGURE_COMMAND )
-  if( DEFINED ARG_CONFIGURE_COMMAND )
+  if( ARG_CONFIGURE_COMMAND )
     set( FULL_CONFIGURE_COMMAND CONFIGURE_COMMAND ${ARG_CONFIGURE_COMMAND} )
   endif()
   # build cmake argument list
@@ -673,6 +673,14 @@ function( ilcsoft_package_install_target )
       INSTALL_COMMAND ""
     )
   endif()
+  # TODO Remove this additional step and re-write the configure command 
+  # to prepend it with the env setup 
+  ExternalProject_Add_Step( 
+    ${ARG_TARGET}
+    env_configure
+    COMMAND . ${BUILD_ENV_FILE} 
+    DEPENDERS configure 
+  )
   # generate build_env.sh file
   ilcsoft_generate_build_env( FILE ${BUILD_ENV_FILE} )
 endfunction()
