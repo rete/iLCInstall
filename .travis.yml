@@ -4,8 +4,9 @@ language: shell
 os: linux
 
 env:
-  - TARGET_HOST=naf-ilc.desy.de # to be replaced with a machine with more cores and docker available
-  - HOST_USER=eteremi # to be replaced with a more official user name for nightly builds
+  global:
+    - TARGET_HOST=naf-ilc.desy.de # to be replaced with a machine with more cores and docker available
+    - HOST_USER=eteremi # to be replaced with a more official user name for nightly builds
 
 install:
   - sudo apt-get install sshpass
