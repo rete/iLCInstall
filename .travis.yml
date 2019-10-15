@@ -1,13 +1,7 @@
-language: python
-cache: pip
-python:
-  - "2.7"
-# command to install dependencies
-install: "pip install -r .travis-ci.d/requirements.txt"
-# command to run tests
+
+language: shell
+
+os: linux
+
 script:
-  - export PYTHONPATH=${PWD%/*}
-  - echo $PYTHONPATH
-  - .travis-ci.d/run-unittests.sh
-after_success:
-  - coveralls
+  - sshpass -e ssh -t eteremi@naf-ilc.desy.de "echo "Travis test at `date`" >> ~/test-travis-ci.txt"
