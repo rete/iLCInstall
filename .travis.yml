@@ -1,12 +1,25 @@
 
 sudo: required
-
 language: shell
-
 os: linux
+
+env:
+  - TARGET_HOST=naf-ilc.desy.de # to be replaced with a machine with more cores and docker available
+  - HOST_USER=eteremi # to be replaced with a more official user name for nightly builds
 
 install:
   - sudo apt-get install sshpass
 
+# This assumes the env var SSHPASS is set by Travis before starting the job
+# TODO: Change the command with the proper script to run on the target host
 script:
-  - sshpass -e ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t eteremi@naf-ilc.desy.de "echo "Travis test at `date`" >> ~/test-travis-ci.txt"
+  - sshpass -e \
+  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t \
+  $HOST_USER@$TARGET_HOST \
+  "echo "Travis test at `date`" >> ~/test-travis-ci.txt"
+
+# Send an error if the script can't be triggered.
+# On success, this doesn't mean the nightly build was
+# a success but that the script started correctly
+notifications:
+  on_failure: always
