@@ -9,4 +9,4 @@ install:
   - sudo apt-get install sshpass
 
 script:
-  - sshpass -e ssh -t eteremi@naf-ilc.desy.de "echo "Travis test at `date`" >> ~/test-travis-ci.txt"
+  - sshpass -e ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t eteremi@naf-ilc.desy.de "echo "Travis test at `date`" >> ~/test-travis-ci.txt"
