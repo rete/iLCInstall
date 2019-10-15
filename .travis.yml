@@ -13,9 +13,7 @@ install:
 # This assumes the env var SSHPASS is set by Travis before starting the job
 # TODO: Change the command with the proper script to run on the target host
 script:
-  - sshpass -e \
-  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t \
-  $HOST_USER@$TARGET_HOST \
+  - sshpass -e ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t  $HOST_USER@$TARGET_HOST "nohup ~/test-ssh-run > /dev/null"
 
 # Send an error if the script can't be triggered.
 # On success, this doesn't mean the nightly build was
