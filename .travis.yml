@@ -20,4 +20,6 @@ script:
 # On success, this doesn't mean the nightly build was
 # a success but that the script started correctly
 notifications:
-  on_failure: always
+  email:
+    on_success: never # default: change
+    on_failure: always # default: always
