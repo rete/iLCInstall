@@ -112,7 +112,7 @@ execfile( config_file )
 ilcsoft.config_file = config_file
 ilcsoft.config_file_prefix = config_file_basename
 ilcsoft.config_file_suffix = config_file_extension
-ilcsoft.cleanupInstall = options.cleanup
+ilcsoft.cleanupInstall = options.clean
 
 # this is for initializing the modules
 # (called right after reading the config file)
