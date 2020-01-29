@@ -18,6 +18,7 @@ parser.add_option('-d', '--dependencies', action='store_true', help='show depend
 parser.add_option('-i', '--install', action='store_true', help='install the software')
 parser.add_option('-v', '--verbose', action='store_true', dest='verbose', help='run in DEBUG mode')
 parser.add_option('-j', '--ncores',  action='store', dest='ncores', default=4, help='number of cores to use')
+parser.add_option('--clean', action='store_true', help='cleanup the packages after individual successful build')
 parser.add_option('--log-cfg-file', help='file to configure logging settings')
 parser.add_option('--install-prefix', action='store', help='location where to install the software')
 
@@ -111,7 +112,7 @@ execfile( config_file )
 ilcsoft.config_file = config_file
 ilcsoft.config_file_prefix = config_file_basename
 ilcsoft.config_file_suffix = config_file_extension
-
+ilcsoft.cleanupInstall = options.cleanup
 
 # this is for initializing the modules
 # (called right after reading the config file)
