@@ -95,17 +95,16 @@ class Geant4(BaseILC):
             v = "%s.%s.%s" % ( v[0], v[1], v[2] )
 
         self.cmakeconfig = self.installPath + "/lib/Geant4-" + v  + ";" + self.installPath + "/lib64/Geant4-" + v
+        self.cleanupResources.append( self.installPath + "/../build-" + self.version )
 
     def compile(self):
         """ compile Geant4 """
 
         trymakedir( self.installPath + "/../build-" + self.version )
         os.chdir( self.installPath + "/../build-" + self.version )
-        self.cleanupResources.append( self.installPath + "/../build-" + self.version )
 
         if( self.rebuild ):
             tryunlink( "CMakeCache.txt" )
-
 
         self.envcmake['CMAKE_INSTALL_PREFIX']=self.installPath
         self.envcmake.setdefault( 'GEANT4_INSTALL_DATA', 'ON' )
