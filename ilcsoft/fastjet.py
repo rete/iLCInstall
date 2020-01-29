@@ -101,10 +101,6 @@ class FastJet(BaseILC):
             if( os_system( "make install 2>&1 | tee -a " + self.logfile ) != 0 ):
                 self.abort( "failed to install!!" )
 
-    def cleanupInstall(self):
-        BaseILC.cleanupInstall(self)
-        os.chdir( self.installPath + "/build" )
-        os_system( "make clean" )
 
     def postCheckDeps(self):
         BaseILC.postCheckDeps(self)

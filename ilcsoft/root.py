@@ -61,17 +61,10 @@ class ROOT(BaseILC):
 ##        os.renames( self.version, self.name )
 ##        os.renames( self.name, self.version + "/" + self.name )
 
-<<<<<<< HEAD
-    def cleanupInstall(self):
-        BaseILC.cleanupInstall(self)
-        os.chdir( self.installPath )
-        os_system( "rm -rf ./" + self.name )
-=======
     # def cleanupInstall(self):
     #     BaseILC.cleanupInstall(self)
     #     os.chdir( self.installPath )
     #     os.system( "rm -rf ./" + self.name )
->>>>>>> Boost, ROOT, Geant4: added build directory to list of resources to cleanup
 
     def compile(self):
         """ compile root """

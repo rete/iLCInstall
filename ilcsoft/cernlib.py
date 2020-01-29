@@ -173,17 +173,6 @@ class CERNLIB(BaseILC):
             print "* Building libraries..."
             if( os_system( "make > log/make.`date +%m%d` 2>&1" ) != 0 ):
                 self.abort( "failed to compile!!")
-    
-    def cleanupInstall(self):
-        os.chdir( os.path.dirname(self.installPath) )
-        #if( not self.rebuild ):
-        #    for file in self.tgz_files:
-        #        tryunlink(file)
-        #    tryunlink( "start_cern" )
-        #os.chdir( self.installPath + "/build" )
-
-        ## delete object files
-        os_system( "find "+self.installPath + "/build -type f -name *.o -exec rm -f {} \;" )
 
     def postCheckDeps(self):
         BaseILC.postCheckDeps(self)

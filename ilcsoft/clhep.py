@@ -78,11 +78,6 @@ class CLHEP(BaseILC):
             self.abort( "failed to install!!" )
                         
 
-    def cleanupInstall(self):
-        BaseILC.cleanupInstall(self)
-        os.chdir( self.buildPath ) 
-        os_system( "make clean" )
-
     def postCheckDeps(self):
         BaseILC.postCheckDeps(self)
 
