@@ -193,6 +193,25 @@ def tryunlink(file):
 
 #--------------------------------------------------------------------------------
 
+def trydelresource(resource):
+    """ try to delete the resource.
+        If the resource is a directory, call shutil.rmtree() (recursive)
+        else just call unlink().
+        does not raise any exception in case of failure
+        - returns True if successfull
+        - returns False if fails """
+    try:
+        if os.path.isdir( resource ):
+            shutil.rmtree( resource )
+        else:
+            os.unlink( resource )
+    except:
+        return False
+    return True
+    
+
+#--------------------------------------------------------------------------------
+
 def isinPath(prog):
     """ looks if a program exists and is in the current path
         - returns True if prog exists in current path (is executable)
