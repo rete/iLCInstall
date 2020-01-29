@@ -59,6 +59,7 @@ class BaseILC:
         self.rebuild = False                    # flag for calling a "make clean" before building the software
         self.skipCompile = False                # flag for skipping the compile step of a module
         self.useLink = False                    # flag for "link" packages
+        self.cleanupResources = []              # List of resources to cleanup after a successful build
         self.parent = None                      # parent class (this should be set to the ilcsoft object)
         self.reqfiles = []                      # list of required files to "use" this package (libraries, binaries, etc.)
         self.optmodules = []                    # optional modules (this package will try to build itself with this modules)
@@ -808,6 +809,14 @@ class BaseILC:
 
         os.chdir( os.path.dirname(self.installPath) )
         tryunlink( self.download.tarball )
+        for resource in self.cleanupResources:
+            # basic check on type
+            if not isinstance(resource, basestring):
+                continue
+            # check that the file is in the package directory
+            if resource.startswith( self.parent.installPath ) or resource.startswith( self.installPath ):
+                trydelresource( resource )
+            
     
     def createLink(self):
         """ if package is to be linked only """
