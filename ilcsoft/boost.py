@@ -56,6 +56,7 @@ class Boost(BaseILC):
         """ compile Boost """
 
         trymakedir( self.buildPath )
+        self.cleanupResources.append( self.buildPath )
         os.chdir( self.installPath )
 
         if( self.rebuild ):

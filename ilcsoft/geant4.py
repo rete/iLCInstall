@@ -101,6 +101,7 @@ class Geant4(BaseILC):
 
         trymakedir( self.installPath + "/../build-" + self.version )
         os.chdir( self.installPath + "/../build-" + self.version )
+        self.cleanupResources.append( self.installPath + "/../build-" + self.version )
 
         if( self.rebuild ):
             tryunlink( "CMakeCache.txt" )
