@@ -43,6 +43,9 @@ class ROOT(BaseILC):
             self.download.svnurl += '/tags/v' + self.version.replace('.','-')
 
         self.cmakeconfig = self.installPath + "/cmake"
+        # this default path exists and is not created by ilcinstall but provided by ROOT
+        self.cleanupResources.remove( self.installPath + "/build" )
+        self.cleanupResources.append( self.installPath + "/../build-" + self.version )
 
     def init(self):
         BaseILC.init(self)
@@ -98,7 +101,6 @@ class ROOT(BaseILC):
 
         trymakedir( self.installPath + "/../build-" + self.version )
         os.chdir( self.installPath + "/../build-" + self.version )
-        self.cleanupResources.append( self.installPath + "/../build-" + self.version )
 
         if( self.rebuild ):
             tryunlink( "CMakeCache.txt" )
