@@ -266,6 +266,7 @@ class BaseILC:
             self.checkInstall(True)
 
         self.buildPath = self.installPath + '/build'
+        self.cleanupResources.append( self.buildPath )
 
         self.mode = mode
 
@@ -815,6 +816,7 @@ class BaseILC:
                 continue
             # check that the file is in the package directory
             if resource.startswith( self.parent.installPath ) or resource.startswith( self.installPath ):
+                print "%s: cleaning up resource %s" % (self.name, resource)
                 trydelresource( resource )
             
     
