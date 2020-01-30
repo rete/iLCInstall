@@ -48,6 +48,7 @@ class ILCSoft:
             'CMAKE_CXX_FLAGS_RELWITHDEBINFO' : '-O2 -g'
         }
         self.cleanInstall = True    # global flag for cleaning temporary files after installation (objects, tarfiles...)
+        self.cleanupStrategy = None # cleanup strategy for individual packages (None, "install", "all")
 
         self.envpathbak = {         # backup path environment variables (PATH, LD_LIBRARY_PATH, CLASSPATH)
             "PATH" : [],
@@ -488,10 +489,9 @@ class ILCSoft:
             print "\n" + 30*'*' + " Installing software " + 30*'*' + "\n"
             for mod in self.modules:
                 mod.install([])
-        else:
+        else if self.cleanupStrategy in ['all']:
             for mod in self.modules:
-                if( self.cleanInstall ):
-                    self.cleanupInstall()
+                mod.cleanupInstall()
 
         # write dependencies to file
         depsfile=self.installPath+"/.dependencies/external"

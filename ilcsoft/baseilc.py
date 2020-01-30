@@ -196,6 +196,7 @@ class BaseILC:
 
         # initialize cleanInstall flag
         self.cleanInstall = self.parent.cleanInstall
+        self.cleanupStrategy = self.parent.cleanupStrategy
         
         self.rebuild = self.parent.rebuild
 
@@ -846,7 +847,7 @@ class BaseILC:
 
     def install(self, installed=[]):
         """ install this module """
-
+        cleanupDone = False
         # install
         if( self.mode == "install" and not self.downloadOnly ):
 
@@ -906,11 +907,15 @@ class BaseILC:
             # write dependencies to file
             self.writeLocalDeps()
             
-            if( self.cleanInstall ):
+            if( self.cleanupStrategy in ["install", "all"] ):
                 self.cleanupInstall()
+                cleanupDone = True
             
             # unset environment
             self.unsetEnv([])
+            
+        if( self.cleanupStrategy is "all" and not cleanupDone ):
+            self.cleanupInstall()
 
     def previewinstall(self, installed=[]):
         """ preview installation of this module """
