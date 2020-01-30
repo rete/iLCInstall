@@ -194,10 +194,6 @@ class BaseILC:
         # initialize download password 
         if( self.parent.downloadPass != "" ):
             self.download.password = self.parent.downloadPass
-
-        # initialize cleanInstall flag
-        self.cleanInstall = self.parent.cleanInstall
-        self.cleanupStrategy = self.parent.cleanupStrategy
         
         self.rebuild = self.parent.rebuild
 
@@ -283,8 +279,9 @@ class BaseILC:
         """ this method is called right after reading the configuration file and
             before dependencies are checked """
 
-        # init logfile
+        # init logfile and cleanup flag
         self.logfile = self.parent.logfile
+        self.cleanupStrategy = self.parent.cleanupStrategy
             
         if( self.mode == "install" ):
             # initialize download data
