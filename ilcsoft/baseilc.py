@@ -265,7 +265,7 @@ class BaseILC:
 
         self.buildPath = self.installPath + '/build'
         self.cleanupResources.append( self.buildPath )
-        if self.download.tarball :
+        if self.download.tarball and self.download.type == "wget" :
             self.cleanupResources.append( os.path.join(self.installPath, self.download.tarball) )
 
         self.mode = mode
