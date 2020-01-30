@@ -489,7 +489,7 @@ class ILCSoft:
             print "\n" + 30*'*' + " Installing software " + 30*'*' + "\n"
             for mod in self.modules:
                 mod.install([])
-        else if self.cleanupStrategy in ['all']:
+        elif self.cleanupStrategy in ['all']:
             for mod in self.modules:
                 mod.cleanupInstall()
 
