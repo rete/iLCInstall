@@ -265,6 +265,8 @@ class BaseILC:
 
         self.buildPath = self.installPath + '/build'
         self.cleanupResources.append( self.buildPath )
+        if( self.download.tarball )
+            self.cleanupResources.append( os.path.join(self.installPath, self.download.tarball) )
 
         self.mode = mode
 
@@ -817,8 +819,6 @@ class BaseILC:
         self.cleanupDone = True
         print "%s: cleaning up package resources..." % self.name
         # Clean !!
-        os.chdir( os.path.dirname(self.installPath) )
-        tryunlink( self.download.tarball )
         for resource in self.cleanupResources:
             # basic check on type
             if not isinstance(resource, basestring):
