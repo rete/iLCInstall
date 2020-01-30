@@ -818,6 +818,7 @@ class BaseILC:
         if self.cleanupDone:
             return
         self.cleanupDone = True
+        print "%s: cleaning up package resources..." % self.name
         # Clean !!
         os.chdir( os.path.dirname(self.installPath) )
         tryunlink( self.download.tarball )
@@ -827,7 +828,7 @@ class BaseILC:
                 continue
             # check that the file is in the package directory
             if resource.startswith( self.parent.installPath ) or resource.startswith( self.installPath ):
-                print "%s: cleaning up resource %s" % (self.name, resource)
+                print "  cleaning up resource %s" % resource
                 trydelresource( resource )
             
     
