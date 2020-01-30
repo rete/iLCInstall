@@ -489,9 +489,10 @@ class ILCSoft:
             print "\n" + 30*'*' + " Installing software " + 30*'*' + "\n"
             for mod in self.modules:
                 mod.install([])
-        elif self.cleanupStrategy in ['all']:
-            for mod in self.modules:
-                mod.cleanupInstall()
+
+        # Do cleanup if not done yet !
+        for mod in self.modules:
+            mod.cleanupInstall()
 
         # write dependencies to file
         depsfile=self.installPath+"/.dependencies/external"

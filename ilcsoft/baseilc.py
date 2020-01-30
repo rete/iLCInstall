@@ -60,6 +60,7 @@ class BaseILC:
         self.skipCompile = False                # flag for skipping the compile step of a module
         self.useLink = False                    # flag for "link" packages
         self.cleanupResources = []              # List of resources to cleanup after a successful build
+        self.cleanupDone = False                # Runtime variable, whether the cleanup has been done
         self.parent = None                      # parent class (this should be set to the ilcsoft object)
         self.reqfiles = []                      # list of required files to "use" this package (libraries, binaries, etc.)
         self.optmodules = []                    # optional modules (this package will try to build itself with this modules)
@@ -808,7 +809,16 @@ class BaseILC:
 
     def cleanupInstall(self):
         """ clean up temporary files used for the installation """
-
+        # Should we ?
+        doCleanup = (self.mode == "install") and (self.cleanupStrategy in ["install", "all"])
+        doCleanup = doCleanup or ((self.mode == "use") and (self.cleanupStrategy in ["all"]))
+        if not doCleanup:
+            return
+        # If already performed, don't repeat
+        if self.cleanupDone:
+            return
+        self.cleanupDone = True
+        # Clean !!
         os.chdir( os.path.dirname(self.installPath) )
         tryunlink( self.download.tarball )
         for resource in self.cleanupResources:
@@ -847,7 +857,7 @@ class BaseILC:
 
     def install(self, installed=[]):
         """ install this module """
-        cleanupDone = False
+        
         # install
         if( self.mode == "install" and not self.downloadOnly ):
 
@@ -907,15 +917,10 @@ class BaseILC:
             # write dependencies to file
             self.writeLocalDeps()
             
-            if( self.cleanupStrategy in ["install", "all"] ):
-                self.cleanupInstall()
-                cleanupDone = True
-            
             # unset environment
             self.unsetEnv([])
             
-        if( self.cleanupStrategy is "all" and not cleanupDone ):
-            self.cleanupInstall()
+        self.cleanupInstall()
 
     def previewinstall(self, installed=[]):
         """ preview installation of this module """
