@@ -19,7 +19,7 @@ class ROOT(BaseILC):
         BaseILC.__init__(self, userInput, "ROOT", "root")
 
         #self.installSupport = False
-        self.hasCMakeBuildSupport = False
+        self.hasCMakeBuildSupport = True
 
         self.download.supportedTypes = [ "wget", "svn-export", "svn" ]
 
