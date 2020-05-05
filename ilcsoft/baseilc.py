@@ -811,6 +811,7 @@ class BaseILC:
         # Should we ?
         doCleanup = (self.mode == "install") and (self.cleanupStrategy in ["install", "all"])
         doCleanup = doCleanup or ((self.mode == "use") and (self.cleanupStrategy in ["all"]))
+        
         if not doCleanup:
             return
         # If already performed, don't repeat
@@ -905,6 +906,9 @@ class BaseILC:
             os_system( "echo \"" + 10*'#' + " FINISHED BUILDING " + self.name + "\" >> " + self.logfile )
             os_system( "echo \"" + 100*'#' + "\" >> " + self.logfile )
             
+            # cleanup before setting use mode
+            self.cleanupInstall()
+
             # set the module to use mode
             self.mode = "use"
 
@@ -917,8 +921,8 @@ class BaseILC:
             
             # unset environment
             self.unsetEnv([])
-            
-        self.cleanupInstall()
+        else:
+            self.cleanupInstall()
 
     def previewinstall(self, installed=[]):
         """ preview installation of this module """
